@@ -23,6 +23,7 @@
 vue create app-name
 
 # manual installを選択
+# vue3/typescript/unit testを最低選択
 
 yarn add -D @testing-library/vue
 ```
