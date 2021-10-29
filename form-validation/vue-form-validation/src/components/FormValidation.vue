@@ -58,11 +58,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, computed, ref } from "vue";
+import { defineComponent, reactive, computed } from "vue";
 import { getPatientFormResult, isFormValid } from "../../../form";
 
 export default defineComponent({
-  setup() {
+  emits: ["submit"],
+  setup(_props, { emit }) {
     const form = reactive({
       name: "",
       weight: {
@@ -70,9 +71,12 @@ export default defineComponent({
         units: "kg",
       },
     });
+    const submit = () => {
+      emit("submit", { patient: form });
+    };
     const validatedForm = computed(() => getPatientFormResult(form));
     const valid = computed(() => isFormValid(validatedForm.value));
-    return { form, validatedForm, valid };
+    return { form, submit, validatedForm, valid };
   },
 });
 </script>

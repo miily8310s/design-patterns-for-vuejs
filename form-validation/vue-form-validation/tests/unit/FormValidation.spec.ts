@@ -1,40 +1,45 @@
-import { mount } from "@vue/test-utils";
+import { render, fireEvent } from "@testing-library/vue";
 import FormValidation from "../../src/components/FormValidation.vue";
 
 describe("FormValidation", () => {
   it("fills out form correctly", async () => {
-    const wrapper = mount(FormValidation);
+    const { getByLabelText, getByDisplayValue, queryByRole } =
+      render(FormValidation);
 
-    await wrapper.find('[role="name"]').setValue("lachlan");
-    await wrapper.find('[role="weight-units"]').setValue("lb");
-    await wrapper.find('[role="weight"]').setValue("150");
+    await fireEvent.update(getByLabelText("Name"), "lachlan");
+    await fireEvent.update(getByDisplayValue("kg"), "lb");
+    await fireEvent.update(getByLabelText("Weight"), "150");
 
-    expect(wrapper.findAll('[role="error"]')).toHaveLength(0);
+    expect(queryByRole("error")).toBe(null);
   });
+
   it("shows errors for invalid inputs", async () => {
-    const wrapper = mount(FormValidation);
+    const { getByLabelText, getByDisplayValue, getAllByRole } =
+      render(FormValidation);
 
-    await wrapper.find('[role="name"]').setValue("");
-    await wrapper.find('[role="weight-units"]').setValue("lb");
-    await wrapper.find('[role="weight"]').setValue("50");
+    await fireEvent.update(getByLabelText("Name"), "");
+    await fireEvent.update(getByLabelText("Weight"), "5");
+    await fireEvent.update(getByDisplayValue("kg"), "lb");
 
-    expect(wrapper.findAll('[role="error"]')).toHaveLength(2);
+    expect(getAllByRole("error")).toHaveLength(2);
   });
+
   it("emits a submit event with patientForm when valid form submitted", async () => {
-    const wrapper = mount(FormValidation);
+    const { getByLabelText, getByDisplayValue, getByText, emitted } =
+      render(FormValidation);
 
-    await wrapper.find('[role="name"]').setValue("lachlan");
-    await wrapper.find('[role="weight-units"]').setValue("kg");
-    await wrapper.find('[role="weight"]').setValue("100");
-    await wrapper.find('[role="submit"]').trigger("submit.prevent");
+    await fireEvent.update(getByLabelText("Name"), "lachlan");
+    await fireEvent.update(getByLabelText("Weight"), "150");
+    await fireEvent.update(getByDisplayValue("kg"), "lb");
+    await fireEvent.click(getByText("Submit"));
 
-    expect(wrapper.emitted("submit")![0]).toEqual([
+    expect(emitted().submit[0]).toEqual([
       {
         patient: {
           name: "lachlan",
           weight: {
-            value: 100,
-            units: "kg",
+            value: 150,
+            units: "lb",
           },
         },
       },
