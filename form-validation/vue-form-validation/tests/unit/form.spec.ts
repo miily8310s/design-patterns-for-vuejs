@@ -63,7 +63,7 @@ describe("validateMeasurement", () => {
 
   it("returns invalid when outside range", () => {
     const constraints = { min: 10, max: 30 };
-    const actual = validateMeasurement(40, { constraints });
+    const actual = validateMeasurement("40", { constraints });
     expect(actual).toEqual({
       valid: false,
       message: "Must be between 10 and 30",
@@ -72,7 +72,7 @@ describe("validateMeasurement", () => {
 
   it("returns valid when value is in range", () => {
     const constraints = { min: 10, max: 30 };
-    const actual = validateMeasurement(20, { constraints });
+    const actual = validateMeasurement("20", { constraints });
     expect(actual).toEqual({ valid: true });
   });
 });
@@ -80,16 +80,16 @@ describe("validateMeasurement", () => {
 describe("isFormValid", () => {
   it("returns true when name and weight field are valid", () => {
     const validForm = {
-      name: { valid: true },
-      weight: { valid: true },
+      nameFormResult: { valid: true },
+      weightFormResult: { valid: true },
     };
     expect(isFormValid(validForm)).toEqual(true);
   });
 
   it("returns false when form field is invalid", () => {
     const inValidForm = {
-      name: { valid: false },
-      weight: { valid: true },
+      nameFormResult: { valid: false },
+      weightFormResult: { valid: true },
     };
     expect(isFormValid(inValidForm)).toEqual(false);
   });
@@ -98,7 +98,7 @@ describe("isFormValid", () => {
 describe("getPatientFormResult", () => {
   const validPatient = {
     name: "test patient",
-    weight: { value: 200, units: "kg" },
+    weight: { value: "200", units: "kg" },
   };
 
   it("is valid when form is filled out correctly", () => {
@@ -116,7 +116,7 @@ describe("getPatientFormResult", () => {
   it("is invalid when weight under limit", () => {
     const form = getPatientFormResult({
       ...validPatient,
-      weight: { value: 65, units: "lb" },
+      weight: { value: "65", units: "lb" },
     });
     expect(form.nameFormResult).toEqual({ valid: true });
     expect(form.weightFormResult).toEqual({
@@ -128,7 +128,7 @@ describe("getPatientFormResult", () => {
   it("is invalid when weight under limit", () => {
     const form = getPatientFormResult({
       ...validPatient,
-      weight: { value: 201, units: "kg" },
+      weight: { value: "201", units: "kg" },
     });
     expect(form.nameFormResult).toEqual({ valid: true });
     expect(form.weightFormResult).toEqual({
