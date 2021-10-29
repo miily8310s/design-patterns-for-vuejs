@@ -1,27 +1,25 @@
 import {
-  isValidWeight,
+  isFormValid,
+  isValidValue,
   isWeightBetween,
   validateMeasurement,
+  getPatientFormResult,
 } from "../../../form";
 
 describe("isValidWeight", () => {
   it("is invalid when undefined", () => {
-    expect(isValidWeight(undefined)).toEqual({
+    expect(isValidValue(undefined)).toEqual({
       valid: false,
       message: "Required",
     });
   });
 
-  it("returns true when number minus", () => {
-    expect(isValidWeight(-1)).toEqual({ valid: true });
+  it("returns true when empty string", () => {
+    expect(isValidValue("")).toEqual({ valid: false, message: "Required" });
   });
 
-  it("returns true when number 0", () => {
-    expect(isValidWeight(0)).toEqual({ valid: false, message: "Required" });
-  });
-
-  it("returns true when number not 0", () => {
-    expect(isValidWeight(1)).toEqual({ valid: true });
+  it("returns true when not empty string", () => {
+    expect(isValidValue("some value")).toEqual({ valid: true });
   });
 });
 
@@ -76,5 +74,66 @@ describe("validateMeasurement", () => {
     const constraints = { min: 10, max: 30 };
     const actual = validateMeasurement(20, { constraints });
     expect(actual).toEqual({ valid: true });
+  });
+});
+
+describe("isFormValid", () => {
+  it("returns true when name and weight field are valid", () => {
+    const validForm = {
+      name: { valid: true },
+      weight: { valid: true },
+    };
+    expect(isFormValid(validForm)).toEqual(true);
+  });
+
+  it("returns false when form field is invalid", () => {
+    const inValidForm = {
+      name: { valid: false },
+      weight: { valid: true },
+    };
+    expect(isFormValid(inValidForm)).toEqual(false);
+  });
+});
+
+describe("getPatientFormResult", () => {
+  const validPatient = {
+    name: "test patient",
+    weight: { value: 200, units: "kg" },
+  };
+
+  it("is valid when form is filled out correctly", () => {
+    const form = getPatientFormResult(validPatient);
+    expect(form.nameFormResult).toEqual({ valid: true });
+    expect(form.weightFormResult).toEqual({ valid: true });
+  });
+
+  it("is invalid when name is empty", () => {
+    const form = getPatientFormResult({ ...validPatient, name: "" });
+    expect(form.nameFormResult).toEqual({ valid: false, message: "Required" });
+    expect(form.weightFormResult).toEqual({ valid: true });
+  });
+
+  it("is invalid when weight under limit", () => {
+    const form = getPatientFormResult({
+      ...validPatient,
+      weight: { value: 65, units: "lb" },
+    });
+    expect(form.nameFormResult).toEqual({ valid: true });
+    expect(form.weightFormResult).toEqual({
+      valid: false,
+      message: "Must be between 66 and 440",
+    });
+  });
+
+  it("is invalid when weight under limit", () => {
+    const form = getPatientFormResult({
+      ...validPatient,
+      weight: { value: 201, units: "kg" },
+    });
+    expect(form.nameFormResult).toEqual({ valid: true });
+    expect(form.weightFormResult).toEqual({
+      valid: false,
+      message: "Must be between 30 and 200",
+    });
   });
 });

@@ -3,13 +3,31 @@ interface WeightLimit {
   max: number;
 }
 
-const limits = {
+interface PatientForm {
+  name: string;
+  weight: {
+    value: number;
+    units: string;
+  };
+}
+
+interface ValidationResult {
+  valid: boolean;
+  message?: string;
+}
+
+interface PatientFormValidity {
+  name: ValidationResult;
+  weight: ValidationResult;
+}
+
+const limits: { [key: string]: WeightLimit } = {
   kg: { min: 30, max: 200 },
   lb: { min: 66, max: 440 },
 };
 
-// 体重の値が正しく与えられているか
-export const isValidWeight = (value?: number | undefined) => {
+// 引数で与えられた値が不正ではないかチェック
+export const isValidValue = (value?: string) => {
   if (!value) {
     return {
       valid: false,
@@ -35,10 +53,28 @@ export const validateMeasurement = (
   value: number | undefined,
   { constraints }: { constraints: WeightLimit }
 ) => {
-  const result = isValidWeight(value);
+  const result = isValidValue(value?.toString());
   if (!result.valid) {
     return result;
   }
 
   return isWeightBetween(value!, constraints);
+};
+
+// フォームに入力した内容が不正でないかのチェック
+export const isFormValid = (patientForm: PatientFormValidity) => {
+  const { name, weight } = patientForm;
+  return name.valid && weight.valid;
+};
+
+// フォームに入力した内容のチェック結果をオブジェクトで返す
+export const getPatientFormResult = (patientForm: PatientForm) => {
+  const nameFormResult = isValidValue(patientForm.name);
+  const weightFormResult = validateMeasurement(patientForm.weight.value, {
+    constraints: limits[patientForm.weight.units],
+  });
+  return {
+    nameFormResult,
+    weightFormResult,
+  };
 };
