@@ -4,7 +4,7 @@ import {
   isWeightBetween,
   validateMeasurement,
   getPatientFormResult,
-} from "../../../form";
+} from "@/form";
 
 describe("isValidWeight", () => {
   it("is invalid when undefined", () => {
