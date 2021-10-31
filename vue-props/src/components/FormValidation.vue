@@ -59,7 +59,7 @@
 
 <script lang="ts">
 import { defineComponent, reactive, computed } from "vue";
-import { getPatientFormResult, isFormValid } from "../../../form";
+import { getPatientFormResult, isFormValid } from "../form";
 
 export default defineComponent({
   emits: ["submit"],
